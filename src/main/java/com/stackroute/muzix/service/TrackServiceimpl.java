@@ -2,6 +2,7 @@ package com.stackroute.muzix.service;
 
 import com.stackroute.muzix.domain.Track;
 import com.stackroute.muzix.exceptions.TrackDoesNotExistException;
+import com.stackroute.muzix.exceptions.TrackListEmptyException;
 import com.stackroute.muzix.exceptions.TrackalreadyExistsException;
 import com.stackroute.muzix.repository.TrackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,38 +31,43 @@ public class TrackServiceimpl implements TrackService{
     }
 
     @Override
-    public List<Track> getAllTracks() {
+    public List<Track> getAllTracks() throws TrackListEmptyException {
+        if (trackRepository.findAll().isEmpty()){
+            throw new TrackListEmptyException();
+        }
         return trackRepository.findAll();
     }
 
     @Override
     public Track getTrack(int trackId) throws TrackDoesNotExistException{
+        if(trackRepository.existsById(trackId)) {
+            return trackRepository.findById(trackId).get();
+        }else{
+            throw new TrackDoesNotExistException("track does not exist");
+        }
+
+
+    }
+    @Override
+    public Track getTrackbyName(String trackName) throws TrackDoesNotExistException {
+        int trackId=trackRepository.findBytrackName(trackName).getTrackId();
         if(!(trackRepository.existsById(trackId))){
             throw new TrackDoesNotExistException("track does not exist");
         }
-        return trackRepository.findById(trackId).get();
-
-    }
-/*
-    @Override
-    public Track getTrackbyName(String trackName) throws TrackDoesNotExistException {
-//        Track track=trackName.
-//        if(!(trackRepository.existsById())){
-//            throw new TrackDoesNotExistException("track does not exist");
-//        }
-        return trackRepository.findByName(trackName);
+        return trackRepository.findBytrackName(trackName);
 
     }
 
     @Override
     public Track getTrackbyComment(String comment) throws TrackDoesNotExistException {
-
-//        if(!(trackRepository.existsById())){
-//            throw new TrackDoesNotExistException("track does not exist");
-//        }
+        int trackId=trackRepository.findByComment(comment).getTrackId();
+        System.out.println(trackId);
+        if(!(trackRepository.existsById(trackId))){
+            throw new TrackDoesNotExistException("track does not exist");
+        }
         return trackRepository.findByComment(comment);
 
-    }*/
+    }
 
     @Override
     public Track updateTrack(Track track) throws TrackDoesNotExistException{
@@ -78,13 +84,14 @@ public class TrackServiceimpl implements TrackService{
     }
 
     @Override
-    public String removeTrack(int trackId) {
+    public Track removeTrack(int trackId) throws TrackDoesNotExistException {
         //if(trackRepository.existsById(track.getTrackId())) {
         try{
             trackRepository.deleteById(trackId);
-            return "track deleted";
         }catch (Exception e){
-          return "Track doesn't exist";
+          throw new TrackDoesNotExistException("track does not exist");
         }
+
+        return trackRepository.findById(trackId).get();
     }
 }

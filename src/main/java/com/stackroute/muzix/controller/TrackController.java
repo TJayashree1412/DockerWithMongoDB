@@ -27,8 +27,14 @@ public class TrackController {
 
     @ApiOperation(value = "Accepts tracks into repository")
     @PostMapping("track")
-    public ResponseEntity<?> savetrack(@RequestBody Track track) throws TrackalreadyExistsException {
-        return  new ResponseEntity<>(trackService.saveTrack(track),HttpStatus.OK);
+    public ResponseEntity<?> savetrack(@RequestBody Track track) {
+        try {
+            return new ResponseEntity<>(trackService.saveTrack(track), HttpStatus.OK);
+        }
+        catch (TrackalreadyExistsException e)
+        {
+            return new ResponseEntity<>("Track not found",HttpStatus.CONFLICT);
+        }
     }
 
     @ApiOperation(value = "Returns all tracks present in repository")
@@ -51,7 +57,6 @@ public class TrackController {
 
         return new ResponseEntity<Track>(track,HttpStatus.OK);
     }
-/*
 
     @GetMapping("trackbyName")
     public ResponseEntity<?> getTrackbyName(@RequestParam String trackName) throws TrackDoesNotExistException{
@@ -66,7 +71,6 @@ public class TrackController {
         Track track=trackService.getTrackbyComment(comment);
         return new ResponseEntity<Track>(track,HttpStatus.OK);
     }
-*/
 
     @PutMapping("track")
     public ResponseEntity<?> updateTrack(@RequestBody Track track) throws TrackDoesNotExistException {
@@ -76,10 +80,10 @@ public class TrackController {
     }
 
     @DeleteMapping("track/{trackId}")
-    public ResponseEntity<?> deletetrack(@PathVariable("trackId") int trackId){
+    public ResponseEntity<?> deletetrack(@PathVariable("trackId") int trackId) throws TrackDoesNotExistException{
 
-            String mesage=trackService.removeTrack(trackId);
+            Track track=trackService.removeTrack(trackId);
 
-        return new ResponseEntity<String>(mesage,HttpStatus.OK);
+        return new ResponseEntity<Track>(track,HttpStatus.OK);
     }
 }

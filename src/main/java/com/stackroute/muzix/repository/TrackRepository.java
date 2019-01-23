@@ -12,12 +12,13 @@ public interface TrackRepository extends MongoRepository<Track,Integer>
 {
 
 
-//    @Query//("SELECT t FROM Track t WHERE t.trackName = ?1")
-//    public Track findByName(String trackName);
-//
-//    @Query//("SELECT t FROM Track t WHERE t.comment = ?1") //?(value)->gives no of parameters
-//    public Track findByComment(String comment);
+    @Query
+    public Track findBytrackName(String trackName);
+
+    @Query
+    public Track findByComment(String comment);
+
+    public Track findBytrackId(int id);
 
 
-//    public Track findByName(String name);
 }
